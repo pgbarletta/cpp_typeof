@@ -1,0 +1,53 @@
+cmake_minimum_required(VERSION 3.12.0)
+project(sample LANGUAGES CXX)
+set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
+set(CMAKE_BUILD_TYPE Release) 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+###################################################################
+if(NOT WIN32)
+  string(ASCII 27 Esc)
+  set(ColourReset "${Esc}[m")
+  set(ColourBold  "${Esc}[1m")
+  set(Red         "${Esc}[31m")
+  set(Green       "${Esc}[32m")
+  set(Yellow      "${Esc}[33m")
+  set(Blue        "${Esc}[34m")
+  set(Magenta     "${Esc}[35m")
+  set(Cyan        "${Esc}[36m")
+  set(White       "${Esc}[37m")
+  set(BoldRed     "${Esc}[1;31m")
+  set(BoldGreen   "${Esc}[1;32m")
+  set(BoldYellow  "${Esc}[1;33m")
+  set(BoldBlue    "${Esc}[1;34m")
+  set(BoldMagenta "${Esc}[1;35m")
+  set(BoldCyan    "${Esc}[1;36m")
+  set(BoldWhite   "${Esc}[1;37m")
+endif()
+###################################################################
+
+add_executable(sample src/sample.cpp)
+
+find_package(fmt REQUIRED)
+if (${fmt_FOUND})
+    message("${Blue}Found fmt.${ColourReset}")
+    target_link_libraries(sample fmt::fmt)
+endif (${fmt_FOUND})
+
+
+message("${Blue}Adding typeof libraries.${ColourReset}")
+add_subdirectory(include/typeof)
+target_link_libraries(sample TYPEOF)
+
+target_compile_options(sample PRIVATE -Wall -Wextra -Wpedantic)
+
+option (FORCE_COLORED_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." ON)
+if (${FORCE_COLORED_OUTPUT})
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        target_compile_options(sample PRIVATE -fdiagnostics-color=always)
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        target_compile_options(sample PRIVATE -fcolor-diagnostics)
+    endif ()
+endif ()
